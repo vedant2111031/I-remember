@@ -3,6 +3,7 @@ import { useRef, useState, useEffect } from "react";
 
 const Manager = () => {
   const ref = useRef();
+  const passwordRef = useRef();
   const [form, setform] = useState({ site: "", username: "", password: "" });
   const [passwordArray, setpasswordArray] = useState([]);
 
@@ -14,10 +15,13 @@ const Manager = () => {
   }, []);
 
   const showPassword = () => {
+    passwordRef.current.type = "password";
     if (ref.current.src.includes("/icon/eye.png")) {
       ref.current.src = "/icon/hide.png";
+      passwordRef.current.type = "text";
     } else {
       ref.current.src = "/icon/eye.png";
+      passwordRef.current.type = "password";
     }
   };
 
@@ -29,6 +33,12 @@ const Manager = () => {
   const handelChange = (e) => {
     setform({ ...form, [e.target.name]: e.target.value });
   };
+
+
+
+  const copyText=(t)=>{
+    navigator.clipboard.writeText(t)
+  }
 
   return (
     <>
@@ -69,11 +79,12 @@ const Manager = () => {
             />
             <div className="relative">
               <input
+                ref={passwordRef}
                 value={form.password}
                 onChange={handelChange}
                 placeholder="Enter Password"
                 className="rounded-full border border-blue-300 w-full p-2 py-1"
-                type="text"
+                type="password"
                 name="password"
                 id=""
               />
@@ -103,29 +114,68 @@ const Manager = () => {
           </button>
         </div>
         <div className="passwords">
-          <h1 className="font-bold text-xl py-4 text-center text-blue-900">Your Passwords</h1>
-          
-          {passwordArray.length==0 && <div>No Password Saved</div>}
-          {passwordArray.length!=0 && 
-          <table className="table-auto w-full rounded-xl overflow-hidden">
-            <thead className="bg-blue-300">
-              <tr>
-                <th className="py-3 text-blue-800">Site</th>
-                <th className="py-3 text-blue-800">Username</th>
-                <th className="py-3 text-blue-800">Password</th>
-              </tr>
-            </thead>
-            <tbody className="bg-blue-200">
-              {passwordArray.map((item,index)=>{
-              return <tr key={index}>
-              <td className="text-center min-w-32 py-2 bottom-2 border border-white"><a href="{item.site}" target="_blank">{item.site}</a></td>
-              <td className="text-center min-w-32 py-2 bottom-2 border border-white">{item.username}</td>
-              <td className="text-center min-w-32 py-2 bottom-2 border border-white">{item.password}</td>
-            </tr>
-              })}
+          <h1 className="font-bold text-xl py-4 text-center text-blue-900">
+            Your Passwords
+          </h1>
 
-            </tbody>
-          </table>}
+          {passwordArray.length == 0 && <div>No Password Saved</div>}
+          {passwordArray.length != 0 && (
+            <table className="table-auto w-full rounded-xl overflow-hidden">
+              <thead className="bg-blue-300">
+                <tr>
+                  <th className="py-3 text-blue-800">Site</th>
+                  <th className="py-3 text-blue-800">Username</th>
+                  <th className="py-3 text-blue-800">Password</th>
+                </tr>
+              </thead>
+              <tbody className="bg-blue-200">
+                {passwordArray.map((item, index) => {
+                  return (
+                    <tr key={index}>
+                      <td className="text-center  py-2 bottom-2 border border-white">
+                        <div className="flex justify-center">
+                        <a href="{item.site}" target="_blank">
+                          {item.site}
+                        </a>
+                        <img
+                          className="mx-2 size-5 my-1 cursor-pointer"
+                          onClick={()=>{copyText(item.site)}}
+                          src="/icon/copy.png"
+                          alt="copy"
+                        />
+                        </div>
+                      </td>
+
+                      <td className="py-2 bottom-2 border border-white">
+                        <div className="flex justify-center">
+                      <a href="{item.username}" target="_blank">
+                          {item.username}
+                        </a> <img
+                        onClick={()=>{copyText(item.username)}}
+                          className="mx-2 size-5 my-1 cursor-pointer"
+                          src="/icon/copy.png"
+                          alt="copy"
+                        />
+                        </div>
+                      </td>
+                      <td className="py-2 bottom-2 border border-white">
+                        <div className="flex justify-center">
+                      <a href="{item.site}" target="_blank">
+                          {item.password}
+                        </a> <img
+                        onClick={()=>{copyText(item.password)}}
+                          className="mx-2 size-5 my-1 cursor-pointer"
+                          src="/icon/copy.png"
+                          alt="copy"
+                        />
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          )}
         </div>
       </div>
     </>
