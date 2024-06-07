@@ -1,6 +1,11 @@
 import React from "react";
 import { useRef, useState, useEffect } from "react";
 
+import { ToastContainer, toast } from "react-toastify";
+
+import "react-toastify/dist/ReactToastify.css";
+import { v4 as uuidv4 } from 'uuid';
+
 const Manager = () => {
   const ref = useRef();
   const passwordRef = useRef();
@@ -26,22 +31,99 @@ const Manager = () => {
   };
 
   const savePassword = () => {
-    setpasswordArray([...passwordArray, form]);
-    localStorage.setItem("password", JSON.stringify([...passwordArray, form]));
+    if(form.site.length >3&& form.username.length>3&&form.password.length>3){
+    setpasswordArray([...passwordArray, {...form,id:uuidv4()}]);
+    localStorage.setItem("password", JSON.stringify([...passwordArray, {...form,id:uuidv4()}]));
     console.log(form);
+    setform({ site: "", username: "", password: "" })
+    toast.success('Saved!', {
+      position: "top-right",
+      autoClose: 4000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+      });
+  }
+  else{
+    toast.error('Error: Not Saved', {
+      position: "top-right",
+      autoClose: 4000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+      });
+  }
   };
+
+
+  const handelDelete = (id) => {
+    let c= confirm("Do you Really want to delete this password");
+    if(c){
+    setpasswordArray(passwordArray.filter(item=>item.id!=id));
+    localStorage.setItem("password", JSON.stringify(passwordArray.filter(item=>item.id!=id)));
+    toast.success('Deleted successfully', {
+      position: "top-right",
+      autoClose: 4000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+      });
+    }
+  };
+
+  const handelEdit = (id) => {
+    setform(passwordArray.filter(item=>item.id===id)[0])
+    setpasswordArray(passwordArray.filter(item=>item.id!=id));
+  };
+
+
+
   const handelChange = (e) => {
     setform({ ...form, [e.target.name]: e.target.value });
   };
 
-
-
-  const copyText=(t)=>{
-    navigator.clipboard.writeText(t)
-  }
+  const copyText = (t) => {
+    toast.success('Copied to clipboard', {
+      position: "top-right",
+      autoClose: 4000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+      });
+    navigator.clipboard.writeText(t);
+  };
+  
 
   return (
     <>
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+        transition="Bounce"
+      />
+      {/* Same as */}
+      <ToastContainer />
+
       <div>
         <div className="absolute inset-0 -z-10 h-full w-full bg-white bg-[linear-gradient(to_right,#f0f0f0_1px,transparent_1px),linear-gradient(to_bottom,#f0f0f0_1px,transparent_1px)] bg-[size:6rem_4rem]">
           <div className="absolute bottom-0 left-0 right-0 top-0 bg-[radial-gradient(circle_500px_at_50%_200px,#C9EBFF,transparent)]"></div>
@@ -65,7 +147,7 @@ const Manager = () => {
             className="rounded-full border border-blue-300 w-full p-2"
             type="text"
             name="site"
-            id=""
+            id="site"
           />
           <div className="flex w-full gap-5">
             <input
@@ -75,7 +157,7 @@ const Manager = () => {
               className="rounded-full border border-blue-300 w-full p-2 py-1"
               type="text"
               name="username"
-              id=""
+              id="username"
             />
             <div className="relative">
               <input
@@ -86,7 +168,7 @@ const Manager = () => {
                 className="rounded-full border border-blue-300 w-full p-2 py-1"
                 type="password"
                 name="password"
-                id=""
+                id="password"
               />
               <span
                 className="absolute right-0 top-2 cursor-pointer"
@@ -120,12 +202,13 @@ const Manager = () => {
 
           {passwordArray.length == 0 && <div>No Password Saved</div>}
           {passwordArray.length != 0 && (
-            <table className="table-auto w-full rounded-xl overflow-hidden">
+            <table className="table-auto w-full rounded-xl overflow-hidden mb-1">
               <thead className="bg-blue-300">
                 <tr>
                   <th className="py-3 text-blue-800">Site</th>
                   <th className="py-3 text-blue-800">Username</th>
                   <th className="py-3 text-blue-800">Password</th>
+                  <th className="py-3 text-blue-800">Action</th>
                 </tr>
               </thead>
               <tbody className="bg-blue-200">
@@ -134,41 +217,53 @@ const Manager = () => {
                     <tr key={index}>
                       <td className="text-center  py-2 bottom-2 border border-white">
                         <div className="flex justify-center">
-                        <a href="{item.site}" target="_blank">
-                          {item.site}
-                        </a>
-                        <img
-                          className="mx-2 size-5 my-1 cursor-pointer"
-                          onClick={()=>{copyText(item.site)}}
-                          src="/icon/copy.png"
-                          alt="copy"
-                        />
+                          <a href="{item.site}" target="_blank">
+                            {item.site}
+                          </a>
+                          <img
+                            className="mx-2 size-5 my-1 cursor-pointer"
+                            onClick={() => {
+                              copyText(item.site);
+                            }}
+                            src="/icon/copy.png"
+                            alt="copy"
+                          />
                         </div>
                       </td>
 
                       <td className="py-2 bottom-2 border border-white">
                         <div className="flex justify-center">
-                      <a href="{item.username}" target="_blank">
-                          {item.username}
-                        </a> <img
-                        onClick={()=>{copyText(item.username)}}
-                          className="mx-2 size-5 my-1 cursor-pointer"
-                          src="/icon/copy.png"
-                          alt="copy"
-                        />
+                          <a href="{item.username}" target="_blank">
+                            {item.username}
+                          </a>{" "}
+                          <img
+                            onClick={() => {
+                              copyText(item.username);
+                            }}
+                            className="mx-2 size-5 my-1 cursor-pointer"
+                            src="/icon/copy.png"
+                            alt="copy"
+                          />
                         </div>
                       </td>
                       <td className="py-2 bottom-2 border border-white">
                         <div className="flex justify-center">
-                      <a href="{item.site}" target="_blank">
-                          {item.password}
-                        </a> <img
-                        onClick={()=>{copyText(item.password)}}
-                          className="mx-2 size-5 my-1 cursor-pointer"
-                          src="/icon/copy.png"
-                          alt="copy"
-                        />
+                          <a href="{item.site}" target="_blank">
+                            {item.password}
+                          </a>{" "}
+                          <img
+                            onClick={() => {
+                              copyText(item.password);
+                            }}
+                            className="mx-2 size-5 my-1 cursor-pointer"
+                            src="/icon/copy.png"
+                            alt="copy"
+                          />
                         </div>
+                      </td>
+                      <td className="flex py-4 gap-4  border border-white justify-center">
+                      <span><img src="/icon/edit-text.png" alt="edit" className="cursor-pointer size-4" onClick={()=>{handelEdit(item.id)}}/></span>
+                      <span><img src="/icon/delete.png" alt="delete" className="cursor-pointer size-4" onClick={()=>{handelDelete(item.id)}}/></span>
                       </td>
                     </tr>
                   );
